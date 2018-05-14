@@ -221,6 +221,11 @@ def transliterate_fullwidth(s):
     return s.translate(table)
 
 
+# Need to keep track of which of the transforms perform transliteration so that when we do format-string handling,
+# we can do munging on the substrings that are not format-strings before we do any other munging.
+_transliterations = [transliterate_diacritic, transliterate_circled, transliterate_fullwidth]
+
+
 def angle_brackets(s):
     """
     Surrounds the string with 《 》 characters.  Useful when verifying string

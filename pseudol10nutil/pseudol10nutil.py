@@ -1,3 +1,5 @@
+import re
+
 import six
 
 from . import transforms
@@ -36,9 +38,35 @@ class PseudoL10nUtil:
         """
         if not isinstance(s, six.text_type):
             raise TypeError("String to pseudo-localize must be of type '{0}'.".format(six.text_type.__name__))
+        # If no transforms are defined, return the string as-is.
         if not self.transforms:
             return s
-        result = s
-        for munge in self.transforms:
-            result = munge(result)
+        fmt_spec = re.compile(
+            r"""(
+            {.*?}  # https://docs.python.org/3/library/string.html#formatstrings
+            |
+            %(?:\(\w+?\))?.*?[acdeEfFgGiorsuxX%]  # https://docs.python.org/3/library/stdtypes.html#printf-style-string-formatting
+            )""", re.VERBOSE)
+        # If we don't find any format specifiers in the input string, just munge the entire string at once.
+        if not fmt_spec.search(s):
+            result = s
+            for munge in self.transforms:
+                result = munge(result)
+        # If there are format specifiers, we do transliterations on the sections of the string that are not format
+        # specifiers, then do any other munging (padding the length, adding brackets) on the entire string.
+        else:
+            substrings = fmt_spec.split(s)
+            for munge in self.transforms:
+                if munge in transforms._transliterations:
+                    for idx in range(len(substrings)):
+                        if not fmt_spec.match(substrings[idx]):
+                            substrings[idx] = munge(substrings[idx])
+                    else:
+                        continue
+                else:
+                    continue
+            result = u"".join(substrings)
+            for munge in self.transforms:
+                if munge not in transforms._transliterations:
+                    result = munge(result)
         return result

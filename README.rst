@@ -17,7 +17,7 @@ This package has the following external dependencies:
 
 Class for pseudo-localizing strings.  The class currently has the following members:
 
-- ``transforms`` - field that contains the list of transforms to apply to the string.  Default is ``[transliterate_diacritic, pad_length, square_brackets]``
+- ``transforms`` - field that contains the list of transforms to apply to the string.  The transforms will be applied in order.  Default is ``[transliterate_diacritic, pad_length, square_brackets]``
 - ``pseudolocalize(s)`` - method that returns a new string where the transforms to the input string ``s`` have been applied.
 
 
@@ -33,6 +33,22 @@ The following transforms are currently available:
 - ``angle_brackets`` - Surrounds the input string with '《' and '》' characters.
 - ``curly_brackets`` - Surrounds the input string with '❴' and '❵' characters.
 - ``square_brackets`` - Surrounds the input string with '⟦' and '⟧' characters.
+
+
+Format string support
+---------------------
+
+When performing pseudo-localization on a string, the process will skip performing pseudo-localization on format strings.  Python style format strings (e.g. ``{foo}``) and printf style format strings (e.g. ``%s``) are supported.  For example::
+
+   Input [1]: Source {source1} returned 0 rows.
+   Output [1]: '⟦Șøüȓċê {source1} ȓêťüȓñêđ 0 ȓøẁš.﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹⟧
+
+   Input [2]: Source %(source2)s returned 1 row.
+   Output [2]: ⟦Șøüȓċê %(source2)s ȓêťüȓñêđ 1 ȓøẁ.﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹퓛⟧
+
+   Input [3]: Source %s returned %d rows.
+   Output [3]: ⟦Șøüȓċê %s ȓêťüȓñêđ %d ȓøẁš.﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ⟧
+
 
 Example usage
 -------------
