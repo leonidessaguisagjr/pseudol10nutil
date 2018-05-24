@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Pseudo-localize</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css?family=Noto+Serif" rel="stylesheet"/>
+  <script type="text/javascript">
+  function toggle_visibility(id) {
+    var e = document.getElementById(id);
+    if(e.style.display == 'inline-block')
+       e.style.display = 'none';
+    else
+       e.style.display = 'inline-block';
+  }
+  </script>
+</head>
+<body>
+  <h1 class="centered" id="page_title">Pseudo-localize</h1>
+  <form class="centered" id="pseudolocalize_form" method="post">
+    <label for="pseudolocalize_input">Text to pseudo-localize:</label>
+    <br />
+    <textarea id="pseudolocalize_input" name="pseudolocalize_input" placeholder="Input text to pseudo-localize here.">{{ pseudolocalized_text_input }}</textarea>
+    <br />
+    <input type="button" onclick="toggle_visibility('pseudo_l10n_options');" value="Show/hide options"/>
+    <br />
+    <div id="pseudo_l10n_options">
+      <h3 class="centered">Pseudo-localization options:</h3>
+      <p>Perform character substitution:&nbsp;&nbsp;
+        <input type="radio" name="substitution_type" value="diacritics" {{ sub_diacritics }}><label for="diacritics">Diacritical marks</label></input>
+        <input type="radio" name="substitution_type" value="fullwidth" {{ sub_fullwidth }}><label for="fullwidth">Full width text</label></input>
+        <input type="radio" name="substitution_type" value="circled" {{ sub_circled }}><label for="circled">Circled</label></input>
+        <input type="radio" name="substitution_type" value="none" {{ sub_none }}><label for="none">No substitution</label></input>
+      </p>
+      <p>Surround with brackets:&nbsp;&nbsp;
+        <input type="radio" name="add_brackets" value="square" {{ brackets_square }}><label for="square">Square brackets</label></input>
+        <input type="radio" name="add_brackets" value="angle" {{ brackets_angle }}><label for="angle">Angle brackets</label></input>
+        <input type="radio" name="add_brackets" value="curly" {{ brackets_curly }}><label for="curly">Curly brackets</label></input>
+        <input type="radio" name="add_brackets" value="none" {{ brackets_none }}><label for="none">No brackets</label></input>
+      </p>
+      <input type="checkbox" name="pad_length" id="pad_length" {{ do_pad_length }} /><label for="pad_length">Pad length</label> (See <a href="https://www-01.ibm.com/software/globalization/guidelines/a3.html">IBM Globalization Guideline A3: UI expansion</a>.)
+    </div>
+    <br />
+    <input type="submit" name="do_pseudolocalize" id="do_pseudolocalize" value="Pseudo-localize text"/>
+    <br />
+    <label for="pseudolocalize_output">Pseudo-localized text:</label>
+    <br />
+    <textarea id="pseudolocalize_output" name="pseudolocalize_output" readonly>{{ pseudolocalized_text_output }}</textarea>
+  </form>
+</body>
+</html>
