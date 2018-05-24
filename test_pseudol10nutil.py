@@ -16,6 +16,10 @@ class TestPseudoL10nUtil(unittest.TestCase):
         expected = u"⟦Ťȟê ʠüıċǩ ƀȓøẁñ ƒøẋ ǰüɱƥš øṽêȓ ťȟê ĺàźÿ đøğ﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎Ѝ⟧"
         self.assertEqual(expected, self.util.pseudolocalize(self.test_data))
 
+    def test_empty_string(self):
+        self.assertEqual(u"", self.util.pseudolocalize(u""))
+        self.assertEqual(u"", self.util.pseudolocalize(None))
+
     def test_default_fmtspec(self):
         test_data_fmtspec = u"The quick brown {0} jumps over the lazy {1}."
         expected = u"⟦Ťȟê ʠüıċǩ ƀȓøẁñ {0} ǰüɱƥš øṽêȓ ťȟê ĺàźÿ {1}.﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎Ѝא⟧"

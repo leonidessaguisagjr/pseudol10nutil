@@ -34,8 +34,11 @@ class PseudoL10nUtil:
         applied to the string is defined in the transforms field of the object.
 
         :param s: String to pseudo-localize.
-        :returns: Copy of the string s with the transforms applied.
+        :returns: Copy of the string s with the transforms applied.  If the input
+                  string is an empty string or None, an empty string is returned.
         """
+        if not s:  # If the string is empty or None
+            return u""
         if not isinstance(s, six.text_type):
             raise TypeError("String to pseudo-localize must be of type '{0}'.".format(six.text_type.__name__))
         # If no transforms are defined, return the string as-is.
