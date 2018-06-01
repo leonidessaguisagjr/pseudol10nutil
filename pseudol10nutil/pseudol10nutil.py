@@ -108,7 +108,6 @@ class POFileUtil:
                                    True by default. If False, an IOError will be raised.
         """
         leading_trailing_double_quotes = re.compile(r'^"|"$')
-        output_encoding='UTF-8'
         if not os.path.isfile(input_filename):
             raise IOError("Input message catalog not found: {0}".format(os.path.abspath(input_filename)))
         if os.path.isfile(output_filename) and not overwrite_existing:
@@ -118,8 +117,8 @@ class POFileUtil:
                 for current_line in in_fileobj:
                     out_fileobj.write(current_line)
                     if current_line.startswith("msgid"):
-                        msgid = current_line.split(maxsplit=1)[1].strip()
+                        msgid = current_line.split(None, 1)[1].strip()
                         msgid = leading_trailing_double_quotes.sub('', msgid)
                         msgstr = self.l10nutil.pseudolocalize(msgid)
-                        out_fileobj.write("msgstr \"{0}\"\n".format(msgstr))
+                        out_fileobj.write(u"msgstr \"{0}\"\n".format(msgstr))
                         next(in_fileobj)
