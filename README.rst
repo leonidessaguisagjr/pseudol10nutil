@@ -81,11 +81,11 @@ Python 3 example::
 Example web app
 ---------------
 
-There is an example web app in the ``examples/webapp/`` directory that provides a web UI and a REST endpoint for pseudo-localizing strings.  This example is also available on Docker hub: `https://hub.docker.com/r/leonidessaguisagjr/pseudol10nutil/`_.
+There is an example web app in the ``examples/webapp/`` directory that provides a web UI and a REST endpoint for pseudo-localizing strings.  This example is also available on `Docker hub <https://hub.docker.com/r/leonidessaguisagjr/pseudol10nutil/>`_.
 
 Once the docker container is running, the web UI could be accessed via the following URL:
 
-`http://localhost:8080/pseudol10nutil/`_.
+`http://localhost:8080/pseudol10nutil/ <http://localhost:8080/pseudol10nutil/>`_
 
 The REST endpoint could be accessed as follows::
 
@@ -160,7 +160,7 @@ Using pypy3::
 
    msgstr "Ⓗⓔⓛⓛⓞ {0}!﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹"
 
-   >>>> 
+   >>>>
 
 License
 -------
