@@ -1,3 +1,5 @@
+import codecs
+import os.path
 import re
 
 import six
@@ -73,3 +75,51 @@ class PseudoL10nUtil:
                 if munge not in transforms._transliterations:
                     result = munge(result)
         return result
+
+
+class POFileUtil:
+    """
+    Class for performing pseudo-localization on gettext PO (Portable Object) message catalogs.
+    """
+
+    def __init__(self, l10nutil=None):
+        """
+        Initializer for class.
+
+        :param l10nutil: Optional instance of PseudoL10nUtil object.  This can be used to pass in an instance of the
+                         PseudoL10nUtil class with the transforms already configured.  Otherwise, an instance of the
+                         PseudoL10nUtil class will be created with the default transforms.
+        """
+        if not l10nutil:
+            self.l10nutil = PseudoL10nUtil()
+        else:
+            self.l10nutil = l10nutil
+
+    def pseudolocalizefile(self, input_filename, output_filename, input_encoding='UTF-8', output_encoding='UTF-8',
+                           overwrite_existing=True):
+        """
+        Method for pseudo-localizing the message catalog file.
+
+        :param input_filename: Filename of the source (input) message catalog file.
+        :param output_filename: Filename of the target (output) message catalog file.
+        :param input_encoding: String indicating the encoding of the input file.  Optional, defaults to 'UTF-8'.
+        :param output_encoding: String indicating the encoding of the output file.  Optional, defaults to 'UTF-8'.
+        :param overwrite_existing: Boolean indicating if an existing output message catalog file should be overwritten.
+                                   True by default. If False, an IOError will be raised.
+        """
+        leading_trailing_double_quotes = re.compile(r'^"|"$')
+        output_encoding='UTF-8'
+        if not os.path.isfile(input_filename):
+            raise IOError("Input message catalog not found: {0}".format(os.path.abspath(input_filename)))
+        if os.path.isfile(output_filename) and not overwrite_existing:
+            raise IOError("Error, output message catalog already exists: {0}".format(os.path.abspath(output_filename)))
+        with codecs.open(input_filename, mode="r", encoding=input_encoding) as in_fileobj:
+            with codecs.open(output_filename, mode="w", encoding=output_encoding) as out_fileobj:
+                for current_line in in_fileobj:
+                    out_fileobj.write(current_line)
+                    if current_line.startswith("msgid"):
+                        msgid = current_line.split(maxsplit=1)[1].strip()
+                        msgid = leading_trailing_double_quotes.sub('', msgid)
+                        msgstr = self.l10nutil.pseudolocalize(msgid)
+                        out_fileobj.write("msgstr \"{0}\"\n".format(msgstr))
+                        next(in_fileobj)

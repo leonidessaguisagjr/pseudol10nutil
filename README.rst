@@ -4,6 +4,14 @@
 Python module for performing pseudo-localization on strings.  Tested against Python 2, Python3, PyPy and PyPy3.
 
 
+Installation
+------------
+
+The module is available on `PyPI <https://pypi.org/project/pseudol10nutil/>`_ and is installable via ``pip``:
+
+``pip install pseudol10nutil``
+
+
 Dependencies
 ------------
 
@@ -51,7 +59,7 @@ When performing pseudo-localization on a string, the process will skip performin
 
 
 Example usage
--------------
+^^^^^^^^^^^^^
 
 Python 3 example::
 
@@ -68,6 +76,91 @@ Python 3 example::
    >>> util.transforms = [pseudol10nutil.transforms.transliterate_circled, pseudol10nutil.transforms.pad_length, pseudol10nutil.transforms.angle_brackets]
    >>> util.pseudolocalize(s)
    '《Ⓣⓗⓔ ⓠⓤⓘⓒⓚ ⓑⓡⓞⓦⓝ ⓕⓞⓧ ⓙⓤⓜⓟⓢ ⓞⓥⓔⓡ ⓣⓗⓔ ⓛⓐⓩⓨ ⓓⓞⓖ.﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎Ѝא》'
+
+
+Example web app
+---------------
+
+There is an example web app in the ``examples/webapp/`` directory that provides a web UI and a REST endpoint for pseudo-localizing strings.  This example is also available on Docker hub: `https://hub.docker.com/r/leonidessaguisagjr/pseudol10nutil/`_.
+
+Once the docker container is running, the web UI could be accessed via the following URL:
+
+`http://localhost:8080/pseudol10nutil/`_.
+
+The REST endpoint could be accessed as follows::
+
+  >>> import pprint
+  >>> import requests
+  >>> strings = { "s1": "The quick brown {0} jumps over the lazy {1}.", }
+  >>> data = { "strings": strings }
+  >>> headers = { "Accept": "application/json", "Content-Type": "application/json" }
+  >>> api_url = "http://localhost:8080/pseudol10nutil/api/v1.0/pseudo"
+  >>> resp = requests.post(api_url, headers=headers, json=data)
+  >>> resp.status_code
+  200
+  >>> pprint.pprint(resp.json())
+  {'strings': {'s1': '⟦Ťȟê ʠüıċǩ ƀȓøẁñ {0} ǰüɱƥš øṽêȓ ťȟê ĺàźÿ '
+                     '{1}.﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎Ѝא⟧'}}
+
+
+``POFileUtil`` class
+--------------------
+
+Class for performing pseudo-localization on .po (Portable Object) message catalogs.  Currently the class has a single method, ``pseudolocalizefile(input_file, output_file, input_encoding='UTF-8', output_encoding='UTF-8', overwrite_existing=True)``.
+
+The default transforms will be applied to the strings in the input file.  To override this behavior, create an instance of the ``PseudoL10nUtil`` class with the desired behavior and assign it to the ``l10nutil`` field prior to calling the ``pseudolocalizefile()`` method.
+
+
+Example usage
+^^^^^^^^^^^^^
+
+Using pypy3::
+
+   >>>> from pseudol10nutil import POFileUtil
+   >>>> pofileutil = POFileUtil()
+   >>>> input_file = "./testdata/locales/helloworld.pot"
+   >>>> output_file = "./testdata/locales/eo/LC_MESSAGES/helloworld_pseudo.po"
+   >>>> pofileutil.pseudolocalizefile(input_file, output_file)
+   >>>> with open(input_file, mode="r") as fileobj:
+   ....     for line in fileobj:
+   ....         if line.startswith("msgstr"):
+   ....             print(line)
+   ....
+   msgstr ""
+
+   msgstr ""
+
+   msgstr ""
+
+   >>>> with open(output_file, mode="r") as fileobj:
+   ....     for line in fileobj:
+   ....         if line.startswith("msgstr"):
+   ....             print(line)
+   ....
+   msgstr ""
+
+   msgstr "⟦Ẃȟàť ıš ÿøüȓ ñàɱê?: ﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹⟧"
+
+   msgstr "⟦Ȟêĺĺø {0}!﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹⟧"
+
+   >>>> from pseudol10nutil import PseudoL10nUtil
+   >>>> util = PseudoL10nUtil()
+   >>>> import pseudol10nutil.transforms
+   >>>> util.transforms = [pseudol10nutil.transforms.transliterate_circled, pseudol10nutil.transforms.pad_length]
+   >>>> pofileutil.l10nutil = util
+   >>>> pofileutil.pseudolocalizefile(input_file, output_file)
+   >>>> with open(output_file, mode="r") as fileobj:
+   ....     for line in fileobj:
+   ....         if line.startswith("msgstr"):
+   ....             print(line)
+   ....
+   msgstr ""
+
+   msgstr "Ⓦⓗⓐⓣ ⓘⓢ ⓨⓞⓤⓡ ⓝⓐⓜⓔ?: ﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹"
+
+   msgstr "Ⓗⓔⓛⓛⓞ {0}!﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹"
+
+   >>>> 
 
 License
 -------

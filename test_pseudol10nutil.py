@@ -1,9 +1,26 @@
 # -*- coding: utf-8 -*-
 
+import filecmp
+import os.path
 import unittest
 
-from pseudol10nutil import PseudoL10nUtil
+from pseudol10nutil import POFileUtil, PseudoL10nUtil
 import pseudol10nutil.transforms
+
+
+class TestPOFileUtil(unittest.TestCase):
+
+    def setUp(self):
+        self.pofileutil = POFileUtil()
+
+    def test_generate_pseudolocalized_po(self):
+        input_file = "./testdata/locales/helloworld.pot"
+        expected_file = "./testdata/locales/eo/LC_MESSAGES/helloworld.po"
+        basename, ext = os.path.splitext(expected_file)
+        generated_file = basename + "_generated" + ext
+        self.pofileutil.pseudolocalizefile(input_file, generated_file)
+        self.assertTrue(filecmp.cmp(expected_file, generated_file))
+        os.remove(generated_file)
 
 
 class TestPseudoL10nUtil(unittest.TestCase):

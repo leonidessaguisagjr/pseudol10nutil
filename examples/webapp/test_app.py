@@ -24,7 +24,7 @@ class TestPseudoL10nUtil(unittest.TestCase):
         request_data = {
             "strings": data
         }
-        resp = requests.post(base_url + "pseudo", json=request_data)
+        resp = requests.post(base_url + "pseudo", headers=headers, json=request_data)
         results = resp.json()["strings"]
         for k, v in results.items():
             self.assertEqual(self.util.pseudolocalize(data[k]), v)
