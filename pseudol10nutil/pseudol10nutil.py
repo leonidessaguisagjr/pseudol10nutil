@@ -12,7 +12,7 @@ class PseudoL10nUtil:
     Class for performing pseudo-localization on strings.
     """
 
-    def __init__(self, init_transforms=None):
+    def __init__(self, init_transforms=None, placeholder_regex=None):
         """
         Initializer for class.
 
@@ -20,6 +20,9 @@ class PseudoL10nUtil:
                                 specified, the default list of transforms is
                                 transliterate_diacritic, pad_length and
                                 square_brackets.
+        :param placeholder_regex: Overwrite what PseudoL10nUtil considers a
+                                  placeholder and skips transliteration.
+                                  Has to be a single group!
         """
         if init_transforms is not None:
             self.transforms = init_transforms
@@ -29,6 +32,7 @@ class PseudoL10nUtil:
                 transforms.pad_length,
                 transforms.square_brackets
                 ]
+        self.placeholder_regex = placeholder_regex
 
     def pseudolocalize(self, s):
         """
@@ -46,7 +50,7 @@ class PseudoL10nUtil:
         # If no transforms are defined, return the string as-is.
         if not self.transforms:
             return s
-        fmt_spec = re.compile(
+        fmt_spec = self.placeholder_regex or re.compile(
             r"""(
             {.*?}  # https://docs.python.org/3/library/string.html#formatstrings
             |
@@ -56,7 +60,7 @@ class PseudoL10nUtil:
         if not fmt_spec.search(s):
             result = s
             for munge in self.transforms:
-                result = munge(result)
+                result = munge(result, fmt_spec)
         # If there are format specifiers, we do transliterations on the sections of the string that are not format
         # specifiers, then do any other munging (padding the length, adding brackets) on the entire string.
         else:
@@ -65,7 +69,7 @@ class PseudoL10nUtil:
                 if munge in transforms._transliterations:
                     for idx in range(len(substrings)):
                         if not fmt_spec.match(substrings[idx]):
-                            substrings[idx] = munge(substrings[idx])
+                            substrings[idx] = munge(substrings[idx], fmt_spec)
                     else:
                         continue
                 else:
@@ -73,7 +77,7 @@ class PseudoL10nUtil:
             result = u"".join(substrings)
             for munge in self.transforms:
                 if munge not in transforms._transliterations:
-                    result = munge(result)
+                    result = munge(result, fmt_spec)
         return result
 
 

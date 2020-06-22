@@ -6,12 +6,39 @@ import math
 import six
 
 
-def transliterate_diacritic(s):
+def __get_target_length(size):
+    """
+    Figures out the increased size of the string per
+    IBM Globalization Design Guideline A3: UI Expansion.
+
+    https://www-01.ibm.com/software/globalization/guidelines/a3.html
+
+    :param size: Current size of the string.
+    :returns: The desired increased size.
+    """
+    target_lengths = {
+        six.moves.range(1, 11): 3,
+        six.moves.range(11, 21): 2,
+        six.moves.range(21, 31): 1.8,
+        six.moves.range(31, 51): 1.6,
+        six.moves.range(51, 71): 1.4,
+    }
+    if size > 70:
+        target_length = int(math.ceil(size * 1.3))
+    else:
+        for r, v in target_lengths.items():
+            if size in r:
+                target_length = int(math.ceil(size * v))
+    return target_length
+
+
+def transliterate_diacritic(s, fmt_spec):
     """
     Transliterates an input string by replacing each latin letter with the same
     letter with a diacritic added e.g. "Hello" -> "Ȟêĺĺø"
 
     :param s: String to perform transliteration upon.
+    :param fmt_spec: Regex for placeholders.
     :returns: Transliterated string.
     """
     table = {
@@ -71,12 +98,13 @@ def transliterate_diacritic(s):
     return s.translate(table)
 
 
-def transliterate_circled(s):
+def transliterate_circled(s, fmt_spec):
     """
     Transliterates an input string by replacing each latin letter or digit with
     the circled version of the same letter or digit e.g. "Hello" -> "🅗ⓔⓛⓛⓞ"
 
     :param s: String to perform transliteration upon.
+    :param fmt_spec: Regex for placeholders.
     :returns: Transliterated string.
     """
     table = {
@@ -146,12 +174,13 @@ def transliterate_circled(s):
     return s.translate(table)
 
 
-def transliterate_fullwidth(s):
+def transliterate_fullwidth(s, fmt_spec):
     """
     Transliterates an input string by replacing each latin letter or digit with
     the full width of the same letter or digit e.g. "Hello" -> "Ｈｅｌｌｏ"
 
     :param s: String to perform transliteration upon.
+    :param fmt_spec: Regex for placeholders.
     :returns: Transliterated string.
     """
     table = {
@@ -226,40 +255,55 @@ def transliterate_fullwidth(s):
 _transliterations = [transliterate_diacritic, transliterate_circled, transliterate_fullwidth]
 
 
-def angle_brackets(s):
+def angle_brackets(s, fmt_spec):
     """
     Surrounds the string with 《 》 characters.  Useful when verifying string
     truncation i.e. when checking the UI these characters should be visible.
 
     :param s: String to surround
+    :param fmt_spec: Regex for placeholders.
     :returns: String surrounded with 《 》
     """
     return u'《{0}》'.format(s)
 
 
-def curly_brackets(s):
+def curly_brackets(s, fmt_spec):
     """
     Surrounds the string with ❴ ❵ characters.  Useful when verifying string
     truncation i.e. when checking the UI these characters should be visible.
 
     :param s: String to surround
+    :param fmt_spec: Regex for placeholders.
     :returns: String surrounded with ❴ ❵
     """
     return u'❴{0}❵'.format(s)
 
 
-def square_brackets(s):
+def square_brackets(s, fmt_spec):
     """
     Surrounds the string with ⟦ ⟧ characters.  Useful when verifying string
     truncation i.e. when checking the UI these characters should be visible.
 
     :param s: String to surround
+    :param fmt_spec: Regex for placeholders.
     :returns: String surrounded with ⟦ ⟧
     """
     return u'⟦{0}⟧'.format(s)
 
 
-def pad_length(s):
+def simple_square_brackets(s, fmt_spec):
+    """
+    Surrounds the string with [ ] characters.  Useful when verifying string
+    truncation i.e. when checking the UI these characters should be visible.
+
+    :param s: String to surround
+    :param fmt_spec: Regex for placeholders.
+    :returns: String surrounded with [ ]
+    """
+    return u'[{0}]'.format(s)
+
+
+def pad_length(s, fmt_spec):
     """
     Appends characters to the end of the string to increase the string length per
     IBM Globalization Design Guideline A3: UI Expansion.
@@ -267,6 +311,7 @@ def pad_length(s):
     https://www-01.ibm.com/software/globalization/guidelines/a3.html
 
     :param s: String to pad.
+    :param fmt_spec: Regex for placeholders.
     :returns: Padded string.
     """
     padding_chars = [
@@ -284,19 +329,55 @@ def pad_length(s):
         u'\U0001F6A6',  # 🚦: VERTICAL TRAFFIC LIGHT
         ]
     padding_generator = itertools.cycle(padding_chars)
-    target_lengths = {
-        six.moves.range(1, 11): 3,
-        six.moves.range(11, 21): 2,
-        six.moves.range(21, 31): 1.8,
-        six.moves.range(31, 51): 1.6,
-        six.moves.range(51, 71): 1.4,
-    }
-    if len(s) > 70:
-        target_length = int(math.ceil(len(s) * 1.3))
-    else:
-        for r, v in target_lengths.items():
-            if len(s) in r:
-                target_length = int(math.ceil(len(s) * v))
+    target_length = __get_target_length(len(s))
     diff = target_length - len(s)
     pad = u"".join([next(padding_generator) for _ in range(diff)])
     return s + pad
+
+
+def expand_vowels(s, fmt_spec):
+    """
+    Duplicates vowels in the string to increase the string length per
+    IBM Globalization Design Guideline A3: UI Expansion.
+
+    Note that it subtracts the length of the placeholders.
+    If no vowels are present the last character will be repeated instead.
+
+    https://www-01.ibm.com/software/globalization/guidelines/a3.html
+
+    :param s: String to pad.
+    :param fmt_spec: Regex for placeholders.
+    :returns: Padded string.
+    """
+    vowels = ["aeiouAEIOU"]
+    for munge in _transliterations:
+        vowels.append(munge(vowels[0], fmt_spec))
+    vowels = "".join(vowels)
+
+    substrings = fmt_spec.split(s)
+    length_without_placeholders = 0
+    total_vowels = 0
+    for i in range(len(substrings)):
+        if not fmt_spec.match(substrings[i]):
+            length_without_placeholders += len(substrings[i])
+            total_vowels += sum([substrings[i].count(v) for v in vowels])
+
+    target_length = __get_target_length(length_without_placeholders)
+    diff = target_length - length_without_placeholders
+
+    if total_vowels == 0:
+        return s + s[-1] * diff
+
+    for i in range(len(substrings)):
+        if not fmt_spec.match(substrings[i]):
+            new_substring = []
+            for c in substrings[i]:
+                if c in vowels and total_vowels > 0:
+                    next_vowel_addition = math.floor(diff/total_vowels)
+                    new_substring.append(c * (next_vowel_addition+1))
+                    total_vowels -= 1
+                    diff -= next_vowel_addition
+                else:
+                    new_substring.append(c)
+            substrings[i] = "".join(new_substring)
+    return "".join(substrings)

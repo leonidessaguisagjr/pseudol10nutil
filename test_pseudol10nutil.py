@@ -110,11 +110,39 @@ class TestPseudoL10nUtil(unittest.TestCase):
         self.util.transforms = [pseudol10nutil.transforms.square_brackets]
         self.assertEqual(expected, self.util.pseudolocalize(self.test_data))
 
+    def test_simple_square_brackets(self):
+        expected = u"[The quick brown fox jumps over the lazy dog]"
+        self.util.transforms = [pseudol10nutil.transforms.simple_square_brackets]
+        self.assertEqual(expected, self.util.pseudolocalize(self.test_data))
+
     def test_pad_length(self):
         expected = u"The quick brown fox jumps over the lazy dog﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎ЍאǆᾏⅧ㈴㋹퓛ﺏ𝟘🚦﹎Ѝ"
         self.util.transforms = [pseudol10nutil.transforms.pad_length]
         self.assertEqual(expected, self.util.pseudolocalize(self.test_data))
 
+    def test_expand_vowels_no_vowels(self):
+        test_data = u"jmpng"
+        expected = u"jmpnggggggggggg"
+        self.util.transforms = [pseudol10nutil.transforms.expand_vowels]
+        self.assertEqual(expected, self.util.pseudolocalize(test_data))
+
+    def test_expand_vowels_one_vowel(self):
+        test_data = u"Row"
+        expected = u"Rooooooow"
+        self.util.transforms = [pseudol10nutil.transforms.expand_vowels]
+        self.assertEqual(expected, self.util.pseudolocalize(test_data))
+
+    def test_expand_vowels_vowel_in_placeholder(self):
+        test_data_printffmtspec = u"Source %(source0)s returned 0 rows, source %(source1)s returned 1 row."
+        expected = u"Sooouuurceee %(source0)s reeetuuurneeed 0 rooows, sooouuurceee %(source1)s reeetuuurneeed 1 roooow."
+        self.util.transforms = [pseudol10nutil.transforms.expand_vowels]
+        self.assertEqual(expected, self.util.pseudolocalize(test_data_printffmtspec))
+
+    def test_expand_vowels_transliterated_source(self):
+        test_data_printffmtspec = u"Șøüȓċê %(source0)s ȓêťüȓñêđ 0 ȓøẁš, šøüȓċê %(source1)s ȓêťüȓñêđ 1 ȓøẁ."
+        expected = u"Șøøøüüüȓċêêê %(source0)s ȓêêêťüüüȓñêêêđ 0 ȓøøøẁš, šøøøüüüȓċêêê %(source1)s ȓêêêťüüüȓñêêêđ 1 ȓøøøøẁ."
+        self.util.transforms = [pseudol10nutil.transforms.expand_vowels]
+        self.assertEqual(expected, self.util.pseudolocalize(test_data_printffmtspec))
 
 if __name__ == "__main__":
     unittest.main()
