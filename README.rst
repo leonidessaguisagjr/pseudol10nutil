@@ -38,9 +38,11 @@ The following transforms are currently available:
 - ``transliterate_circled`` - Takes the input string and returns a copy with circled versions of the letters e.g. ``Hello`` -> ``Ⓗⓔⓛⓛⓞ``
 - ``transliterate_fullwidth`` - Takes the input string and returns a copy with the letters converted to their fullwidth counterparts e.g. ``Hello`` -> ``Ｈｅｌｌｏ``
 - ``pad_length`` - Appends a series of characters to the end of the input string to increase the string length per `IBM Globalization Design Guideline A3: UI Expansion <https://www-01.ibm.com/software/globalization/guidelines/a3.html>`_.
+- ``expand_vowels`` - Replicates the vowels of the input string to increase the string length per `IBM Globalization Design Guideline A3: UI Expansion <https://www-01.ibm.com/software/globalization/guidelines/a3.html>`_.
 - ``angle_brackets`` - Surrounds the input string with '《' and '》' characters.
 - ``curly_brackets`` - Surrounds the input string with '❴' and '❵' characters.
 - ``square_brackets`` - Surrounds the input string with '⟦' and '⟧' characters.
+- ``simple_square_brackets`` - Surrounds the input string with '[' and ']' characters.
 
 
 Format string support
