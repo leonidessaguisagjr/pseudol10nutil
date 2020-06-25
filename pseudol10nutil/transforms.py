@@ -23,6 +23,7 @@ def __get_target_length(size):
         six.moves.range(31, 51): 1.6,
         six.moves.range(51, 71): 1.4,
     }
+    target_length = 0
     if size > 70:
         target_length = int(math.ceil(size * 1.3))
     else:

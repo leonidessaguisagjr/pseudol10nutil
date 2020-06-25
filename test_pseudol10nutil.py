@@ -144,5 +144,12 @@ class TestPseudoL10nUtil(unittest.TestCase):
         self.util.transforms = [pseudol10nutil.transforms.expand_vowels]
         self.assertEqual(expected, self.util.pseudolocalize(test_data_printffmtspec))
 
+    def test_expand_vowels_placeholder_only(self):
+        test_data_printffmtspec = u"%(source0)s"
+        expected = u"%(source0)s"
+        self.util.transforms = [pseudol10nutil.transforms.expand_vowels]
+        self.assertEqual(expected, self.util.pseudolocalize(test_data_printffmtspec))
+
+
 if __name__ == "__main__":
     unittest.main()
